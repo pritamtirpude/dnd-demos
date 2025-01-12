@@ -1,26 +1,39 @@
+import React from "react";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import SortableItem from "./SortableItem";
 import { useDroppable } from "@dnd-kit/core";
-import TaskCard from "./TaskCard";
-import { Column as ColumnType, Task } from "./types";
 
 type ColumnProps = {
-  column: ColumnType;
-  tasks: Task[];
+  column: {
+    id: string;
+    items: { id: string; type: string; label: string }[];
+  };
 };
 
-function Column({ column, tasks }: ColumnProps) {
-  const { setNodeRef } = useDroppable({
-    id: column.id,
-  });
+function Column({ column }: ColumnProps) {
+  const { setNodeRef } = useDroppable({ id: column.id });
 
   return (
-    <div className="flex w-80 flex-col rounded-lg bg-neutral-800 p-4">
-      <h2 className="mb-4 font-semibold text-neutral-100">{column.title}</h2>
-      <div ref={setNodeRef} className="flex flex-1 flex-col gap-4">
-        {tasks.map((task) => (
-          <TaskCard task={task} />
+    <SortableContext
+      id={column.id}
+      items={column.items}
+      strategy={verticalListSortingStrategy}
+    >
+      <div
+        ref={setNodeRef}
+        className="flex-1 rounded-lg bg-gray-200 p-4 min-h-[200px]"
+      >
+        {column.items.map((item) => (
+          <SortableItem key={item.id} id={item.id} label={item.label} />
         ))}
+        {column.items.length === 0 && (
+          <p className="text-neutral-500">Drag elements here</p>
+        )}
       </div>
-    </div>
+    </SortableContext>
   );
 }
 
